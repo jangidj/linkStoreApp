@@ -17,6 +17,13 @@ const LinkSchema = new mongoose.Schema({
     },
     img: {
         type: String
+    },
+    star: {
+        type: Boolean
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
     }
 }, {
     timestamps: true

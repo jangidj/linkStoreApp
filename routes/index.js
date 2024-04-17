@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const cheerio = require('cheerio');
+
 
 
 const User = require('./../models/users');
@@ -45,9 +47,9 @@ router.post('/user/signup', async (req, res) => {
 
 })
 
-router.get('/link/list', async (req, res) => {
+router.get('/link/list', VerifyToken, async (req, res) => {
     try {
-        const links = await Link.find({});
+        const links = await Link.find({user: req.user._id});
         res.json({ status: 1, data: links })
     } catch (error) {
         console.error(error);
@@ -55,10 +57,11 @@ router.get('/link/list', async (req, res) => {
     }
 })
 
-router.post('/link/add', async (req, res) => {
+router.post('/link/add', VerifyToken, async (req, res) => {
     try {
-        req.body['img'] = await getRandomImageLink();
-        req.body.tags = req.body.tags.split(",") 
+        req.body['img'] = await getImageUrlFromInstagramReelUrl(req.body.link);
+        req.body.tags = req.body.tags.split(",")
+        req.body['user'] = req.user._id;
         const link = await Link.create(req.body);
         res.json({ status: 1, data: link })
     } catch (error) {
@@ -67,18 +70,64 @@ router.post('/link/add', async (req, res) => {
     }
 })
 
-// Function to fetch a random image link from Unsplash
-const getRandomImageLink = async () => {
+router.get('/link/remove/:linkid', async (req, res) => {
+    try {
+        await Link.deleteOne({_id : req.params.linkid});
+        res.json({ status: 1 });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+})
+
+
+router.get('/link/star/:linkid/:star', VerifyToken, async (req, res) => {
+    try {
+        await Link.findOneAndUpdate({_id : req.params.linkid},{$set : {star : req.params.star}});
+        res.json({ status: 1 });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+})
+
+
+async function getImageUrlFromInstagramReelUrl(instagramReelUrl) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.get('https://picsum.photos/seed/picsum/200/300');
-            return resolve(response.request.res.responseUrl);
+            // Fetch the HTML content of the Instagram reel page
+            const response = await axios.get(instagramReelUrl);
+            const html = response.data;
+    
+            // Load the HTML content into cheerio
+            const $ = cheerio.load(html);
+    
+            // Find the meta tag with property="og:image" to extract the image URL
+            const imageUrl = $('meta[property="og:image"]').attr('content');
+    
+            // Return the image URL
+            return resolve(imageUrl);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching Instagram reel URL:', error);
             return reject(error);
         }
     })
-};
+}
+
+// // Example usage:
+// // const instagramReelUrl = 'https://www.instagram.com/reel/EMDqH7LnOQs/';
+// getImageUrlFromInstagramReelUrl(instagramReelUrl)
+//     .then(imageUrl => {
+//         if (imageUrl) {
+//             console.log('Image URL:', imageUrl);
+//         } else {
+//             console.log('Unable to fetch image URL.');
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error:', error);
+//     });
+
 
 
 // router.get("/user/profile", VerifyToken, Profile);

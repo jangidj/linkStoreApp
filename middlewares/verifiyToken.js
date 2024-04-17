@@ -3,8 +3,7 @@ const User = require('./../models/users');
 
 const VerifyToken = async (req, res, next) => {
     try {
-        console.log(req.cookies)
-        const token = req.cookies.token;
+        const token = req.headers.authorization;
         if (!token) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -12,8 +11,6 @@ const VerifyToken = async (req, res, next) => {
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-
-        console.log("ZZZZZZZZZZZZz",user);
         req.user = user;
         next();
     } catch (err) {
