@@ -56,7 +56,23 @@ router.get('/link/list', VerifyToken, async (req, res) => {
 
         console.log(`skip : ${skip} and pageSize : ${pageSize}`)
 
-        const links = await Link.find({user: req.user._id}).skip(skip).limit(pageSize);
+        let query = {
+            user: req.user._id
+        }
+
+        if(req.query.isStarLink) query["star"] = true
+        if(req.query.search) {
+            query["$or"] = [
+                {
+                    title : { $regex: req.query.search, $options: 'i' }
+                },
+                {
+                    description : { $regex: req.query.search, $options: 'i' }
+                }
+            ]
+        }
+
+        const links = await Link.find(query).sort({updatedAt: -1}).skip(skip).limit(pageSize);
         res.json({ status: 1, data: links })
     } catch (error) {
         console.error(error);

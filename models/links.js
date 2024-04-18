@@ -19,7 +19,8 @@ const LinkSchema = new mongoose.Schema({
         type: String
     },
     star: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
