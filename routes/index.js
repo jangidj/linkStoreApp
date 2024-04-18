@@ -95,6 +95,7 @@ router.get('/link/star/:linkid/:star', VerifyToken, async (req, res) => {
 async function getImageUrlFromInstagramReelUrl(instagramReelUrl) {
     return new Promise(async (resolve, reject) => {
         try {
+            console.log("instagramReelUrl", instagramReelUrl)
             // Fetch the HTML content of the Instagram reel page
             const response = await axios.get(instagramReelUrl);
             const html = response.data;
@@ -113,21 +114,6 @@ async function getImageUrlFromInstagramReelUrl(instagramReelUrl) {
         }
     })
 }
-
-// // Example usage:
-// // const instagramReelUrl = 'https://www.instagram.com/reel/EMDqH7LnOQs/';
-// getImageUrlFromInstagramReelUrl(instagramReelUrl)
-//     .then(imageUrl => {
-//         if (imageUrl) {
-//             console.log('Image URL:', imageUrl);
-//         } else {
-//             console.log('Unable to fetch image URL.');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-
 
 
 // router.get("/user/profile", VerifyToken, Profile);
