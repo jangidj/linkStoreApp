@@ -49,7 +49,14 @@ router.post('/user/signup', async (req, res) => {
 
 router.get('/link/list', VerifyToken, async (req, res) => {
     try {
-        const links = await Link.find({user: req.user._id});
+        const pageSize = req.query.pageSize; // Number of documents per page
+        const pageNumber = req.query.pageNumber || 1; // Page number (starting from 1)
+
+        const skip = (pageNumber - 1) * pageSize;
+
+        console.log(`skip : ${skip} and pageSize : ${pageSize}`)
+
+        const links = await Link.find({user: req.user._id}).skip(skip).limit(pageSize);
         res.json({ status: 1, data: links })
     } catch (error) {
         console.error(error);
