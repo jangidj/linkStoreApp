@@ -72,7 +72,7 @@ router.get('/link/list', VerifyToken, async (req, res) => {
             ]
         }
 
-        const links = await Link.find(query).sort({updatedAt: -1}).skip(skip).limit(pageSize);
+        const links = await Link.find(query).sort({crecreatedAt: -1}).skip(skip).limit(pageSize);
         res.json({ status: 1, data: links })
     } catch (error) {
         console.error(error);
@@ -82,10 +82,25 @@ router.get('/link/list', VerifyToken, async (req, res) => {
 
 router.post('/link/add', VerifyToken, async (req, res) => {
     try {
+        console.log(`adding link data ${JSON.stringify(req.body)}`)
         req.body['img'] = await getImageUrlFromInstagramReelUrl(req.body.link);
         req.body.tags = req.body.tags.split(",")
         req.body['user'] = req.user._id;
         const link = await Link.create(req.body);
+        res.json({ status: 1, data: link })
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+})
+
+router.post('/link/edit/:linkId', VerifyToken, async (req, res) => {
+    try {
+        console.log(`adding link data ${JSON.stringify(req.body)}`)
+        req.body['img'] = await getImageUrlFromInstagramReelUrl(req.body.link);
+        req.body.tags = req.body.tags.split(",")
+        req.body['user'] = req.user._id;
+        const link = await Link.findOneAndUpdate({_id : req.params.linkId}, {$set : req.body});
         res.json({ status: 1, data: link })
     } catch (error) {
         console.error(error);
