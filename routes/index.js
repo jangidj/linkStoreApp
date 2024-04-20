@@ -104,6 +104,7 @@ router.post('/link/edit/:linkId', VerifyToken, async (req, res) => {
         if(req.body.tags) req.body.tags = req.body.tags.split(",")
         if(req.body.autoTags) {
             let autoTg = await sendMessageAndGetResponse(req.body.description);
+            console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXxx", autoTg)
             req.body.tags = req.body.tags.length ? [...req.body.tags, ...autoTg] : autoTg
         }
         req.body['user'] = req.user._id;
