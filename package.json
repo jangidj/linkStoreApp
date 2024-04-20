@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.1",
     "passport": "^0.7.0",
+    "puppeteer": "^22.6.5",
     "url-metadata": "^4.1.0",
     "validator": "^13.11.0"
   }

@@ -8,6 +8,7 @@ const cheerio = require('cheerio');
 const User = require('./../models/users');
 const VerifyToken = require("./../middlewares/verifiyToken");
 const Link = require('../models/links');
+const sendMessageAndGetResponse = require("./../lib/openAI");
 
 
 // login user by email and password
@@ -100,7 +101,11 @@ router.post('/link/edit/:linkId', VerifyToken, async (req, res) => {
         let { imageUrl, appName } = await getImageUrlFromInstagramReelUrl(req.body.link)
         req.body['img'] = imageUrl;
         req.body['appName'] = appName;
-        req.body.tags = req.body.tags.split(",")
+        if(req.body.tags) req.body.tags = req.body.tags.split(",")
+        if(req.body.autoTags) {
+            let autoTg = await sendMessageAndGetResponse(req.body.description);
+            req.body.tags = req.body.tags.length ? [...req.body.tags, ...autoTg] : autoTg
+        }
         req.body['user'] = req.user._id;
         const link = await Link.findOneAndUpdate({_id : req.params.linkId}, {$set : req.body});
         res.json({ status: 1, data: link })
@@ -143,8 +148,6 @@ async function getImageUrlFromInstagramReelUrl(instagramReelUrl) {
             // Load the HTML content into cheerio
             const $ = cheerio.load(html);
 
-            console.log($.html())
-    
             // Find the meta tag with property="og:image" to extract the image URL
             const imageUrl = $('meta[property="og:image"]').attr('content');
             const appName = $('meta[property="og:site_name"]').attr('content');
