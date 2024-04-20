@@ -25,6 +25,9 @@ const LinkSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
+    },
+    appName: {
+        type: String
     }
 }, {
     timestamps: true

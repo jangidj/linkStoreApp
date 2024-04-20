@@ -97,7 +97,9 @@ router.post('/link/add', VerifyToken, async (req, res) => {
 router.post('/link/edit/:linkId', VerifyToken, async (req, res) => {
     try {
         console.log(`adding link data ${JSON.stringify(req.body)}`)
-        req.body['img'] = await getImageUrlFromInstagramReelUrl(req.body.link);
+        let { imageUrl, appName } = await getImageUrlFromInstagramReelUrl(req.body.link)
+        req.body['img'] = imageUrl;
+        req.body['appName'] = appName;
         req.body.tags = req.body.tags.split(",")
         req.body['user'] = req.user._id;
         const link = await Link.findOneAndUpdate({_id : req.params.linkId}, {$set : req.body});
@@ -140,15 +142,24 @@ async function getImageUrlFromInstagramReelUrl(instagramReelUrl) {
     
             // Load the HTML content into cheerio
             const $ = cheerio.load(html);
+
+            console.log($.html())
     
             // Find the meta tag with property="og:image" to extract the image URL
             const imageUrl = $('meta[property="og:image"]').attr('content');
-    
+            const appName = $('meta[property="og:site_name"]').attr('content');
+
             // Return the image URL
-            return resolve(imageUrl);
+            return resolve({
+                imageUrl: imageUrl,
+                appName : appName
+            });
         } catch (error) {
             console.error('Error fetching Instagram reel URL:', error);
-            return reject(error);
+            return resolve({
+                imageUrl: instagramReelUrl,
+                appName: ""
+            });
         }
     })
 }
