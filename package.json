@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "build": "cd .. && cd ./linkStoreReactApp && npm run build:prod && cd .. && cp -r ./linkStoreReactApp/build ./linkStoreApp/ && cd  linkStoreApp && git add . && git commit -m 'all' && git push origin main"
+    "build": "cd .. && cd ./linkStoreReactApp && npm run build:prod && cd .. && cp -r ./linkStoreReactApp/build ./linkStoreApp/ && cd  linkStoreApp && git add . && git commit -m 'all' && git push origin main",
+    "live": "ngrok http http://localhost:5000"
   },
   "keywords": [],
   "author": "",

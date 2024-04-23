@@ -84,8 +84,15 @@ router.get('/link/list', VerifyToken, async (req, res) => {
 router.post('/link/add', VerifyToken, async (req, res) => {
     try {
         console.log(`adding link data ${JSON.stringify(req.body)}`)
-        req.body['img'] = await getImageUrlFromInstagramReelUrl(req.body.link);
+        let { imageUrl, appName } = await getImageUrlFromInstagramReelUrl(req.body.link);
+        req.body['img'] = imageUrl;
+        req.body['appName'] = appName;
         req.body.tags = req.body.tags.split(",")
+        if(req.body.autoTags) {
+            let autoTg = await sendMessageAndGetResponse(req.body.description);
+            console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXxx", autoTg)
+            req.body.tags = req.body.tags.length ? [...req.body.tags, ...autoTg] : autoTg
+        }
         req.body['user'] = req.user._id;
         const link = await Link.create(req.body);
         res.json({ status: 1, data: link })
